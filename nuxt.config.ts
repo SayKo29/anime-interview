@@ -34,5 +34,16 @@ export default defineNuxtConfig({
     public: {
       jikanApiBase: 'https://api.jikan.moe/v4'
     }
+  },
+
+  // Vite configuration - Auto-import SCSS variables globally
+  vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: '@use "@/assets/css/variables" as *;'
+        }
+      }
+    }
   }
 })

@@ -9,10 +9,12 @@ export interface AnimeCard {
   title: string;
   imageUrl: string;
   imageUrlSmall: string;
+  imageUrlLarge: string;
   type: string;
   episodes: number | null;
   year: number | null;
   score: number | null;
+  genres: { mal_id: number; name: string; type: string; url: string }[];
 }
 
 // Complete anime for detail page
