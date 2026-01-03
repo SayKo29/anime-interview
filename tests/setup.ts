@@ -30,6 +30,14 @@ vi.mock('#app', () => ({
   })
 }));
 
+// Mock useViewTransition composable
+vi.mock('@/composables/useViewTransition', () => ({
+  useViewTransition: () => ({
+    navigate: vi.fn(),
+    supportsViewTransitions: () => false
+  })
+}));
+
 // Mock window.matchMedia for responsive tests
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -46,7 +54,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock IntersectionObserver for infinite scroll
-global.IntersectionObserver = class IntersectionObserver {
+(globalThis as any).IntersectionObserver = class IntersectionObserver {
   constructor() {}
   disconnect() {}
   observe() {}

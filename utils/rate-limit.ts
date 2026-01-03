@@ -45,11 +45,20 @@ export async function fetchWithRetry<T>(
     
     // If rate limited, wait and retry
     if (response.status === 429 && retries > 0) {
+      console.log(`Rate limit hit, waiting ${RATE_LIMIT_DELAY}ms before retry...`);
       await sleep(RATE_LIMIT_DELAY);
       return fetchWithRetry<T>(url, options, retries - 1);
     }
     
-    // If another error, throw
+    // If server error (5xx), retry with exponential backoff
+    if (response.status >= 500 && response.status < 600 && retries > 0) {
+      const delay = MIN_REQUEST_DELAY * Math.pow(2, MAX_RETRIES - retries);
+      console.log(`Retrying request (${MAX_RETRIES - retries + 1}/${MAX_RETRIES}) after ${delay}ms...`);
+      await sleep(delay);
+      return fetchWithRetry<T>(url, options, retries - 1);
+    }
+    
+    // If another error (4xx), throw without retry
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw {
@@ -62,12 +71,29 @@ export async function fetchWithRetry<T>(
     
     return await response.json();
   } catch (error) {
-    // If it was a 429 error and retries remain
+    // If it's a rate limit error thrown from response handling
     if (isRateLimitError(error) && retries > 0) {
+      console.log(`Rate limit hit, waiting ${RATE_LIMIT_DELAY}ms before retry...`);
       await sleep(RATE_LIMIT_DELAY);
       return fetchWithRetry<T>(url, options, retries - 1);
     }
     
+    // If it's a network error (failed fetch), retry with exponential backoff
+    if (error instanceof Error && error.message && retries > 0) {
+      // Check if it's a network error (not a JSON parse error)
+      const isNetworkError = error.message.includes('Network') || 
+                            error.message.includes('Failed to fetch') ||
+                            error.message.includes('fetch failed');
+      
+      if (isNetworkError) {
+        const delay = MIN_REQUEST_DELAY * Math.pow(2, MAX_RETRIES - retries);
+        console.log(`Retrying request (${MAX_RETRIES - retries + 1}/${MAX_RETRIES}) after ${delay}ms...`);
+        await sleep(delay);
+        return fetchWithRetry<T>(url, options, retries - 1);
+      }
+    }
+    
+    // For other errors (like JSON parse errors), throw immediately
     throw error;
   }
 }
