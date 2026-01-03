@@ -76,37 +76,43 @@ const handleClick = () => {
   box-shadow: $shadow-card;
   contain: layout;
 
-  &:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: $shadow-card-hover;
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: $shadow-card-hover;
 
-    .anime-card__glow {
-      opacity: 0.7;
-      transform: scale(1.1);
-      filter: blur(50px) saturate(2) brightness(1.5);
-    }
+      .anime-card__glow {
+        opacity: 0.7;
+        transform: scale(1.1);
+        filter: blur(50px) saturate(2) brightness(1.5);
+      }
 
-    .anime-card__image {
-      transform: scale(1.15);
-    }
+      .anime-card__image {
+        transform: scale(1.15);
+      }
 
-    .anime-card__overlay {
-      opacity: 1;
-    }
+      .anime-card__overlay {
+        opacity: 1;
+      }
 
-    .anime-card__footer {
-      transform: translateY(-4px);
-    }
+      .anime-card__footer {
+        transform: translateY(-4px);
+      }
 
-    .anime-card__details {
-      max-height: 150px;
-      opacity: 1;
-    }
+      .anime-card__details {
+        max-height: 150px;
+        opacity: 1;
+      }
 
-    .anime-card__genres {
-      max-height: 100px;
-      opacity: 1;
+      .anime-card__genres {
+        max-height: 100px;
+        opacity: 1;
+      }
     }
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 
   &:focus {

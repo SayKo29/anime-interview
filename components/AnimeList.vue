@@ -264,6 +264,14 @@ const { target: scrollTrigger } = useInfiniteScroll(() => {
 
 @include mobile {
   .anime-list {
+    padding: $spacing-md;
+
+    &__grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-md;
+      padding: $spacing-md 0;
+    }
+
     &__spinner {
       width: 40px;
       height: 40px;

@@ -171,7 +171,7 @@ $card-min-height: 380px;
 $card-border-radius: $radius-xl;
 
 // ===== HERO SECTION =====
-$hero-height: 70vh;
+$hero-height: 70dvh;
 $hero-min-height: 550px;
 
 // ===== SCROLLBAR =====
@@ -232,7 +232,7 @@ $color-semantic-info: $color-info;
   }
 }
 
-// Mixin para truncar texto
+// Mixin for truncating text
 @mixin truncate-text($lines: 1) {
   @if $lines == 1 {
     overflow: hidden;
@@ -247,14 +247,14 @@ $color-semantic-info: $color-info;
   }
 }
 
-// Mixin para glassmorphism
+// Mixin for glassmorphism
 @mixin glassmorphism($blur: 10px, $opacity: 0.1) {
   background: rgba(255, 255, 255, $opacity);
   backdrop-filter: blur($blur);
   border: 1px solid rgba(255, 255, 255, $opacity * 2);
 }
 
-// Mixin para hover effects con motion reduction
+// Mixin for hover effects with motion reduction
 @mixin hover-effect {
   transition: all $transition-medium $ease-out;
   
@@ -267,7 +267,7 @@ $color-semantic-info: $color-info;
   }
 }
 
-// ===== CSS CUSTOM PROPERTIES (para compatibilidad) =====
+// ===== CSS CUSTOM PROPERTIES (for compatibility) =====
 :root {
   // Colors
   --color-primary: #{$color-primary};

@@ -122,7 +122,7 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   max-width: 800px;
-  max-height: 90vh;
+  max-height: 90dvh;
   background: $color-bg-secondary;
   border-radius: $radius-2xl;
   border: 1px solid rgba($color-primary, 0.2);
@@ -220,18 +220,31 @@ onUnmounted(() => {
 
 @include mobile {
   .modal-overlay {
-    padding: 0;
+    padding: 0 $spacing-sm;
     align-items: flex-end;
   }
   
   .modal-container {
     max-width: 100%;
-    max-height: 95vh;
-    border-radius: $radius-2xl $radius-2xl 0 0;
+    max-height: 92dvh;
+    border-radius: $radius-xl $radius-xl 0 0;
   }
   
   .modal-content {
-    padding: $spacing-xl $spacing-lg;
+    padding: $spacing-lg $spacing-md;
+    padding-bottom: $spacing-2xl;
+  }
+
+  .modal-close {
+    top: $spacing-sm;
+    right: $spacing-sm;
+    width: 36px;
+    height: 36px;
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
   }
   
   .modal-enter-from .modal-container {

@@ -653,27 +653,178 @@ const formatDate = (dateString: string) => {
 }
 
 @include mobile {
+  .episode-detail {
+    gap: $spacing-lg;
+  }
+
   .episode-header {
     flex-direction: column;
     text-align: center;
     align-items: center;
+    gap: $spacing-md;
+    padding-bottom: $spacing-lg;
     
     &__info {
       align-items: center;
+      gap: $spacing-xs;
     }
     
     &__number {
       min-width: 70px;
       height: 70px;
+      border-radius: $radius-xl;
+      box-shadow: 0 4px 20px rgba($color-primary, 0.3),
+                  0 0 0 2px rgba($color-primary, 0.15);
+    }
+
+    &__label {
+      font-size: 10px;
+      letter-spacing: 1.5px;
     }
     
     &__value {
-      font-size: $font-size-2xl;
+      font-size: 2rem;
+    }
+
+    &__title {
+      font-size: 1.25rem;
+      line-height: 1.3;
+    }
+
+    &__title-japanese,
+    &__title-romanji {
+      font-size: $font-size-sm;
     }
   }
   
   .episode-meta {
     grid-template-columns: 1fr;
+    gap: $spacing-sm;
+  }
+
+  .episode-meta-item {
+    padding: $spacing-md;
+    flex-direction: row;
+    align-items: center;
+    
+    &__icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    &__label {
+      font-size: 10px;
+    }
+    
+    &__value {
+      font-size: $font-size-sm;
+    }
+  }
+
+  .episode-badges {
+    gap: $spacing-sm;
+    justify-content: center;
+  }
+
+  .episode-badge {
+    padding: $spacing-xs $spacing-md;
+    font-size: 10px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .episode-description {
+    &__title {
+      font-size: $font-size-md;
+      margin-bottom: $spacing-sm;
+
+      &::before {
+        width: 3px;
+        height: 16px;
+      }
+    }
+    
+    &__text {
+      font-size: $font-size-sm;
+      line-height: 1.6;
+    }
+  }
+
+  .episode-links {
+    gap: $spacing-sm;
+    padding-top: $spacing-lg;
+  }
+
+  .episode-link {
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-sm;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .episode-skeleton {
+    gap: $spacing-lg;
+
+    &__header {
+      gap: $spacing-md;
+      padding-bottom: $spacing-md;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    &__number {
+      min-width: 70px;
+      height: 70px;
+    }
+
+    &__info {
+      width: 100%;
+      align-items: center;
+    }
+
+    &__title {
+      height: 24px;
+      width: 80%;
+      margin: 0 auto;
+    }
+
+    &__subtitle {
+      height: 16px;
+      width: 60%;
+      margin: 0 auto;
+    }
+
+    &__meta {
+      grid-template-columns: 1fr;
+      gap: $spacing-sm;
+    }
+
+    &__meta-item {
+      height: 60px;
+    }
+
+    &__line {
+      height: 14px;
+    }
+  }
+
+  .episode-error {
+    padding: $spacing-2xl $spacing-lg;
+
+    &__text {
+      font-size: $font-size-sm;
+    }
+
+    &__retry {
+      padding: $spacing-xs $spacing-md;
+      font-size: $font-size-sm;
+    }
   }
 }
 </style>

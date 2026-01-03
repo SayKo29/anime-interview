@@ -5,7 +5,7 @@
       img.hero-image(
         :src="heroAnime.imageUrlLarge"
         :srcset="`${heroAnime.imageUrl} 800w, ${heroAnime.imageUrlLarge} 1200w`"
-        sizes="100vw"
+        sizes="100dvw"
         :alt="heroAnime.title"
       )
       .hero-gradient
@@ -114,7 +114,7 @@ const handleLoadMore = () => {
 
 <style lang="scss" scoped>
 .home-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   background-color: $color-bg-primary;
   font-family: $font-primary;
 }
@@ -282,10 +282,8 @@ const handleLoadMore = () => {
   }
 }
 
-// ===== LOADING STATE =====
-
 .hero-loading {
-  height: 85vh;
+  height: 85dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -402,7 +400,7 @@ const handleLoadMore = () => {
 @include tablet {
   .immersive-hero {
     padding: $spacing-lg;
-    height: 60vh;
+    height: 60dvh;
     align-items: center;
     justify-content: flex-end;
   }
@@ -445,33 +443,83 @@ const handleLoadMore = () => {
 
 @include mobile {
   .hero-title {
-    font-size: $font-size-3xl;
+    font-size: 40px; // Slightly larger for impact, but manageable
+    line-height: 1;
+    text-align: center;
   }
 
   .immersive-hero {
-    padding: $spacing-md;
-    min-height: 500px;
+    padding: $spacing-lg $spacing-md; // More balanced padding
+    min-height: 80dvh; // Take more screen space on mobile for impact
+    align-items: flex-end; // Keep content at bottom
+    justify-content: center;
   }
 
   .hero-nav {
-    padding: $spacing-md;
+    padding: $spacing-md $spacing-lg;
+    display: flex;
+    justify-content: center; // Center logo on mobile
+    background: linear-gradient(to bottom, rgba($color-bg-primary, 0.8), transparent); // Improve readability
   }
 
   .brand-logo {
-    font-size: $font-size-lg;
+    font-size: $font-size-xl; // Ensure visibility
+  }
+
+  .hero-content {
+    align-items: center; // Center all hero content
+    text-align: center;
+    width: 100%;
+    padding-bottom: $spacing-xl; // Bottom spacing for safe area
+  }
+
+  .hero-badges {
+    justify-content: center;
+    flex-wrap: wrap; // Allow wrapping on very small screens
+  }
+
+  .hero-genres {
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: $font-size-sm;
+  }
+
+  .hero-cta {
+    align-self: center; // Center button
+    width: auto; // Let it size naturally
+    padding: $spacing-md $spacing-xl;
+    font-size: $font-size-md;
+  }
+  
+  .hero-gradient {
+    background: linear-gradient(
+      to top, 
+      $color-bg-primary 10%, 
+      rgba($color-bg-primary, 0.8) 50%, 
+      rgba($color-bg-primary, 0.2) 100%
+    );
   }
 
   .main-content {
-    padding: $spacing-md;
+    padding: $spacing-lg $spacing-md; // More comfortable horizontal padding
   }
 
   .content-header {
-    gap: $spacing-md;
-    margin-bottom: $spacing-lg;
+    flex-direction: column; // Stack title and line
+    align-items: flex-start;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-xl;
   }
 
   .section-title {
     font-size: $font-size-2xl;
+  }
+  
+  .section-line {
+    width: 50px; // Small indicator instead of full line
+    background: $color-primary; // Accent color
+    height: 3px;
+    border-radius: $radius-full;
   }
 }
 </style>
