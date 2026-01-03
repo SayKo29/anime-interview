@@ -155,7 +155,9 @@ export interface JikanEpisode {
   aired: string | null;
   filler: boolean;
   recap: boolean;
+  synopsis: string | null;
   forum_url: string | null;
+  score: number | null;
 }
 
 // Episodes list response
