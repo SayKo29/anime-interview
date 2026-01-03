@@ -6,6 +6,16 @@ export default defineNuxtConfig({
   // SSR enabled (required for technical test)
   ssr: true,
 
+  // Cloudflare Pages configuration
+  nitro: {
+    preset: 'cloudflare-pages',
+    prerender: {
+      autoSubfolderIndex: false,
+      crawlLinks: true,
+      routes: ['/']
+    }
+  },
+
   // TypeScript in strict mode
   typescript: {
     strict: true,
