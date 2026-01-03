@@ -37,7 +37,6 @@ describe('rate-limit.ts', () => {
     });
 
     it('should complete after 500ms', async () => {
-      const startTime = Date.now();
       const promise = waitForRateLimit();
       
       await vi.advanceTimersByTimeAsync(500);
@@ -45,7 +44,7 @@ describe('rate-limit.ts', () => {
       
       // In fake timers, we can't check real time elapsed
       // but we can verify the promise resolved
-      expect(promise).resolves.toBeUndefined();
+      await expect(promise).resolves.toBeUndefined();
     });
   });
 
@@ -136,38 +135,52 @@ describe('rate-limit.ts', () => {
     });
 
     it('should throw error after max retries', async () => {
+      // Use real timers for this test to avoid unhandled rejections
+      vi.useRealTimers();
+      
       const mockFetch = vi.mocked(global.fetch);
       const error = new Error('Network error');
       
       // All attempts fail
       mockFetch.mockRejectedValue(error);
 
-      const promise = fetchWithRetry(mockUrl, { method: 'GET' });
-      
-      // Run all timers
-      await vi.runAllTimersAsync();
-
-      await expect(promise).rejects.toThrow('Network error');
+      await expect(fetchWithRetry(mockUrl, { method: 'GET' })).rejects.toThrow('Network error');
       expect(mockFetch).toHaveBeenCalledTimes(4); // Initial + 3 retries
-    });
+      
+      // Restore fake timers
+      vi.useFakeTimers();
+    }, 10000); // 10 second timeout for this test with real timers
 
     it('should handle 404 errors without retrying', async () => {
+      // Use real timers for this test to avoid unhandled rejections
+      vi.useRealTimers();
+      
       const mockFetch = vi.mocked(global.fetch);
       
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 404,
         statusText: 'Not Found',
-        json: async () => ({ message: 'Not Found', error: 'Not Found' })
+        json: async () => ({ message: 'Not Found', error: 'Not Found' }),
+        headers: new Headers(),
+        redirected: false,
+        type: 'basic' as ResponseType,
+        url: '',
+        clone: function() { return this as Response; },
+        body: null,
+        bodyUsed: false,
+        arrayBuffer: async () => new ArrayBuffer(0),
+        blob: async () => new Blob(),
+        formData: async () => new FormData(),
+        text: async () => '',
+        bytes: async () => new Uint8Array()
       } as Response);
 
-      const promise = fetchWithRetry(mockUrl, { method: 'GET' });
-      
-      // Run all timers
-      await vi.runAllTimersAsync();
-
-      await expect(promise).rejects.toMatchObject({ status: 404 });
+      await expect(fetchWithRetry(mockUrl, { method: 'GET' })).rejects.toMatchObject({ status: 404 });
       expect(mockFetch).toHaveBeenCalledTimes(1); // No retries for 404
+      
+      // Restore fake timers
+      vi.useFakeTimers();
     });
 
     it('should handle 500 server errors with retries', async () => {
@@ -255,6 +268,9 @@ describe('rate-limit.ts', () => {
     });
 
     it('should handle JSON parse errors', async () => {
+      // Use real timers for this test to avoid unhandled rejections
+      vi.useRealTimers();
+      
       const mockFetch = vi.mocked(global.fetch);
       
       const mockResponse = {
@@ -280,11 +296,10 @@ describe('rate-limit.ts', () => {
       
       mockFetch.mockResolvedValueOnce(mockResponse);
 
-      const promise = fetchWithRetry(mockUrl, { method: 'GET' });
+      await expect(fetchWithRetry(mockUrl, { method: 'GET' })).rejects.toThrow('Invalid JSON');
       
-      await vi.runAllTimersAsync();
-
-      await expect(promise).rejects.toThrow('Invalid JSON');
+      // Restore fake timers
+      vi.useFakeTimers();
     });
 
     it('should pass through fetch options', async () => {

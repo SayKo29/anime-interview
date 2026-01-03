@@ -3,28 +3,12 @@
  * Tests the unified API client for Jikan API
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { useApi } from '~/composables/useApi';
-
-// Mock Nuxt composables
-vi.mock('#app', () => ({
-  useRuntimeConfig: () => ({
-    public: {
-      jikanApiBase: 'https://api.jikan.moe/v4'
-    }
-  }),
-  useFetch: vi.fn(),
-  useAsyncData: vi.fn(),
-  useNuxtApp: () => ({
-    payload: { data: {} },
-    static: { data: {} }
-  }),
-  $fetch: vi.fn(),
-}));
 
 describe('useApi', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    // Clear any mocks between tests
   });
 
   it('should provide all API methods', () => {

@@ -3,6 +3,20 @@
  */
 
 import { vi } from 'vitest';
+import { ref } from 'vue';
+
+// Make Nuxt composables available globally for tests
+(global as any).useRuntimeConfig = () => ({
+  public: {
+    jikanApiBase: 'https://api.jikan.moe/v4'
+  }
+});
+
+(global as any).useState = (key: string, init?: () => any) => {
+  return ref(init ? init() : null);
+};
+
+(global as any).navigateTo = vi.fn();
 
 // Mock Nuxt composables that are not available in test environment
 vi.mock('#app', () => ({
@@ -11,11 +25,8 @@ vi.mock('#app', () => ({
       jikanApiBase: 'https://api.jikan.moe/v4'
     }
   }),
-  useState: (key: string, init: () => unknown) => {
-    const state = init();
-    return {
-      value: state
-    };
+  useState: (key: string, init?: () => any) => {
+    return ref(init ? init() : null);
   },
   navigateTo: vi.fn(),
   useRouter: () => ({
@@ -27,7 +38,14 @@ vi.mock('#app', () => ({
     params: {},
     query: {},
     path: '/'
-  })
+  }),
+  useFetch: vi.fn(),
+  useAsyncData: vi.fn(),
+  useNuxtApp: () => ({
+    payload: { data: {} },
+    static: { data: {} }
+  }),
+  $fetch: vi.fn(),
 }));
 
 // Mock useViewTransition composable
