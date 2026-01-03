@@ -3,7 +3,7 @@ section.anime-list
   //- Skeleton loading state
   ul.anime-list__grid.anime-list__grid--loading(
     v-if="loading && animes.length === 0"
-    aria-label="Cargando animes"
+    aria-label="Loading animes"
     aria-busy="true"
   )
     li.anime-list__item(
@@ -15,7 +15,7 @@ section.anime-list
   //- Grid of anime cards
   ul.anime-list__grid(
     v-else-if="animes.length > 0"
-    aria-label="Listado de animes"
+    aria-label="Anime list"
   )
     li.anime-list__item(
       v-for="anime in animes"
@@ -29,8 +29,8 @@ section.anime-list
     role="status"
   )
     span.anime-list__empty-icon(aria-hidden="true") 📺
-    h2.anime-list__empty-title No se encontraron animes
-    p.anime-list__empty-text No hay animes disponibles en este momento
+    h2.anime-list__empty-title No animes found
+    p.anime-list__empty-text No animes available at this moment
 
   //- Infinite scroll trigger
   footer.anime-list__footer(
@@ -41,12 +41,18 @@ section.anime-list
     //- Loading indicator
     .anime-list__loading(v-if="loading")
       span.anime-list__spinner(aria-hidden="true")
-      p.anime-list__loading-text Cargando más animes...
+      p.anime-list__loading-text Loading more animes...
 
     //- End message
     .anime-list__end(v-else-if="!hasMore && animes.length > 0")
-      span.anime-list__end-icon(aria-hidden="true") ✨
-      p.anime-list__end-text Has llegado al final de la lista
+      .anime-list__end-decoration
+        .decoration-circle.circle-1
+        .decoration-circle.circle-2
+        .decoration-circle.circle-3
+      .anime-list__end-content
+        h3.anime-list__end-title You've Explored It All!
+        p.anime-list__end-text You've reached the end of this amazing collection
+        .anime-list__end-line
 
   //- Error message
   aside.anime-list__error(
@@ -85,17 +91,12 @@ const { target: scrollTrigger } = useInfiniteScroll(() => {
 <style lang="scss" scoped>
 .anime-list {
   width: 100%;
-  max-width: $container-max-width;
-  margin: 0 auto;
-  padding: $spacing-xl $spacing-md;
 
-  // Element: Grid container
   &__grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: $spacing-2xl;
     list-style: none;
-    padding: $spacing-lg 0;
     margin: 0 0 $spacing-2xl 0;
 
     // Modifier: Loading state
@@ -174,23 +175,94 @@ const { target: scrollTrigger } = useInfiniteScroll(() => {
 
   // Element: End message
   &__end {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-3xl $spacing-lg;
+    overflow: hidden;
+  }
+  
+  &__end-decoration {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.1;
+  }
+  
+  .decoration-circle {
+    position: absolute;
+    border-radius: $radius-full;
+    background: linear-gradient(135deg, $color-primary, $color-secondary);
+    animation: float-pulse 4s ease-in-out infinite;
+    
+    &.circle-1 {
+      width: 200px;
+      height: 200px;
+      top: -50px;
+      left: -50px;
+      animation-delay: 0s;
+    }
+    
+    &.circle-2 {
+      width: 150px;
+      height: 150px;
+      top: 50%;
+      right: -30px;
+      animation-delay: 1.5s;
+    }
+    
+    &.circle-3 {
+      width: 100px;
+      height: 100px;
+      bottom: -20px;
+      left: 50%;
+      animation-delay: 3s;
+    }
+  }
+  
+  &__end-content {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: $spacing-sm;
-    padding: $spacing-lg;
   }
-
-  &__end-icon {
-    font-size: 32px;
+  
+  &__end-title {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-extrabold;
+    margin: 0;
+    background: linear-gradient(135deg, $color-primary-light, $color-secondary, $color-primary);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 3s ease infinite;
+    text-align: center;
+    letter-spacing: -0.5px;
   }
 
   &__end-text {
-    font-size: $font-size-md;
+    font-size: $font-size-lg;
     font-weight: $font-weight-medium;
-    color: $color-text-muted;
+    color: $color-text-secondary;
     margin: 0;
     text-align: center;
+    opacity: 0.9;
+  }
+  
+  &__end-line {
+    width: 60px;
+    height: 4px;
+    margin-top: $spacing-sm;
+    background: linear-gradient(90deg, transparent, $color-primary, transparent);
+    border-radius: $radius-full;
+    animation: line-glow 2s ease-in-out infinite;
   }
 
   // Element: Error message
@@ -226,11 +298,41 @@ const { target: scrollTrigger } = useInfiniteScroll(() => {
   }
 }
 
+@keyframes float-pulse {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.1;
+  }
+  50% {
+    transform: translate(10px, -10px) scale(1.1);
+    opacity: 0.15;
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes line-glow {
+  0%, 100% {
+    opacity: 0.5;
+    box-shadow: 0 0 10px rgba($color-primary, 0.3);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba($color-primary, 0.6);
+  }
+}
+
 // ===== RESPONSIVE =====
 
 @include tablet {
   .anime-list {
-    padding: $spacing-2xl $spacing-xl;
 
     &__grid {
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -242,7 +344,6 @@ const { target: scrollTrigger } = useInfiniteScroll(() => {
 
 @include desktop {
   .anime-list {
-    padding: $spacing-2xl $spacing-2xl;
 
     &__grid {
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -277,9 +378,37 @@ const { target: scrollTrigger } = useInfiniteScroll(() => {
       height: 40px;
     }
 
-    &__loading-text,
-    &__end-text {
+    &__loading-text {
       font-size: $font-size-sm;
+    }
+    
+    &__end {
+      padding: $spacing-2xl $spacing-md;
+    }
+    
+    &__end-title {
+      font-size: $font-size-2xl;
+    }
+    
+    &__end-text {
+      font-size: $font-size-base;
+    }
+    
+    .decoration-circle {
+      &.circle-1 {
+        width: 150px;
+        height: 150px;
+      }
+      
+      &.circle-2 {
+        width: 100px;
+        height: 100px;
+      }
+      
+      &.circle-3 {
+        width: 80px;
+        height: 80px;
+      }
     }
 
     &__empty-icon {

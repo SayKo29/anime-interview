@@ -6,11 +6,11 @@
       )
       .anime-page__backdrop-overlay
       .anime-page__particles
-    button.anime-page__back(@click="goBack" aria-label="Volver al listado")
+    button.anime-page__back(@click="goBack" aria-label="Back to list")
       .anime-page__back-icon
         svg(width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2")
           path(d="M19 12H5M12 19l-7-7 7-7")
-      span Volver
+      span Back
     .anime-page__content
       header.anime-hero
         .anime-hero__visual
@@ -119,7 +119,7 @@
   .page-error(v-else-if="error")
     h1 404
     p Anime not found in this timeline.
-    button.anime-page__back(@click="goBack") Return to Base
+    button.anime-page__back(@click="goBack") Return Home
   
   //- Episode Modal
   EpisodeModal(
@@ -160,10 +160,18 @@ const goBack = () => navigateTo('/');
 
 if (anime.value) {
   useHead({
-    title: anime.value.title,
+    title: `${anime.value.title} - Anime Collection`,
     meta: [
-      { name: 'description', content: anime.value.synopsis?.slice(0, 160) },
-      { property: 'og:image', content: anime.value.images.jpg.large_image_url }
+      { name: 'description', content: anime.value.synopsis?.slice(0, 160) || `Watch ${anime.value.title} - Anime details, episodes, and more.` },
+      { name: 'keywords', content: `${anime.value.title}, anime, ${anime.value.genres?.map(g => g.name).join(', ') || 'anime series'}, watch anime` },
+      { property: 'og:title', content: `${anime.value.title} - Anime Collection` },
+      { property: 'og:description', content: anime.value.synopsis?.slice(0, 160) || `Watch ${anime.value.title}` },
+      { property: 'og:image', content: anime.value.images.jpg.large_image_url },
+      { property: 'og:type', content: 'video.tv_show' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: anime.value.title },
+      { name: 'twitter:description', content: anime.value.synopsis?.slice(0, 160) || '' },
+      { name: 'twitter:image', content: anime.value.images.jpg.large_image_url }
     ]
   });
 }

@@ -23,7 +23,7 @@ BaseModal(
           .episode-skeleton__line.episode-skeleton__line--short
     .episode-error(v-else-if="error")
       p.episode-error__text {{ error }}
-      button.episode-error__retry(@click="loadEpisodeDetails") Reintentar
+      button.episode-error__retry(@click="loadEpisodeDetails") Retry
     .episode-detail(v-else-if="fullEpisodeData")
       header.episode-header
         .episode-header__number
@@ -44,7 +44,7 @@ BaseModal(
             circle(cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5")
             path(d="M10 5V10L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round")
           .episode-meta-item__content
-            span.episode-meta-item__label Fecha de emisión
+            span.episode-meta-item__label Air Date
             time.episode-meta-item__value(:datetime="fullEpisodeData.aired") {{ formatDate(fullEpisodeData.aired) }}
         .episode-meta-item(v-if="fullEpisodeData.duration")
           svg.episode-meta-item__icon(
@@ -56,20 +56,20 @@ BaseModal(
             rect(x="3" y="4" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5")
             path(d="M8 8L12 10L8 12V8Z" fill="currentColor")
           .episode-meta-item__content
-            span.episode-meta-item__label Duración
+            span.episode-meta-item__label Duration
             span.episode-meta-item__value {{ fullEpisodeData.duration }} min
       .episode-badges(v-if="fullEpisodeData.filler || fullEpisodeData.recap")
         .episode-badge.episode-badge--filler(v-if="fullEpisodeData.filler")
           svg(width="16" height="16" viewBox="0 0 16 16" fill="currentColor")
             path(d="M8 0L10.4 5.6L16 8L10.4 10.4L8 16L5.6 10.4L0 8L5.6 5.6L8 0Z")
-          | Episodio Filler
+          | Filler Episode
         .episode-badge.episode-badge--recap(v-if="fullEpisodeData.recap")
           svg(width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5")
             path(d="M14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2")
             path(d="M8 2L11 5L8 8" stroke-linecap="round" stroke-linejoin="round")
-          | Episodio Recap
+          | Recap Episode
       .episode-description(v-if="fullEpisodeData.synopsis")
-        h3.episode-description__title Sinopsis
+        h3.episode-description__title Synopsis
         p.episode-description__text {{ fullEpisodeData.synopsis }}
       .episode-links
         a.episode-link(
@@ -81,7 +81,7 @@ BaseModal(
           svg(width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5")
             path(d="M10 2H4C2.9 2 2 2.9 2 4V16C2 17.1 2.9 18 4 18H16C17.1 18 18 17.1 18 16V10")
             path(d="M12 2H18V8M18 2L8 12" stroke-linecap="round")
-          | Ver en MyAnimeList
+          | View on MyAnimeList
         a.episode-link(
           v-if="fullEpisodeData.forum_url"
           :href="fullEpisodeData.forum_url"
@@ -91,7 +91,7 @@ BaseModal(
           svg(width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5")
             rect(x="2" y="2" width="16" height="16" rx="2")
             path(d="M6 7H14M6 10H14M6 13H10")
-          | Discusión en el foro
+          | Forum Discussion
 </template>
 
 <script setup lang="ts">
@@ -144,7 +144,7 @@ const loadEpisodeDetails = async () => {
     }
   } catch (err) {
     console.error('Error loading episode details:', err);
-    error.value = 'No se pudieron cargar los detalles del episodio';
+    error.value = 'Could not load episode details';
     // Fallback to basic episode data
     fullEpisodeData.value = props.episode;
   } finally {
@@ -164,7 +164,7 @@ const handleModalClosed = () => {
 const formatDate = (dateString: string) => {
   try {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('es-ES', {
+    return new Intl.DateTimeFormat('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',

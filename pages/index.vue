@@ -16,11 +16,11 @@
         span.highlight COLLECTION
     .hero-content
       .hero-badges
-        span.rank-badge Tendencia #1
+        span.rank-badge Trending #1
         .meta-badge
           span.star ★
           |  {{ heroAnime.score }}
-        span.meta-badge {{ heroAnime.year || 'Clásico' }}
+        span.meta-badge {{ heroAnime.year || 'Classic' }}
         span.meta-badge {{ heroAnime.type }}
       h2.hero-title {{ heroAnime.title }}
       .hero-genres(v-if="heroAnime.genres && heroAnime.genres.length")
@@ -30,10 +30,14 @@
         ) {{ genre.name }}
       button.hero-cta(@click="navigateTo(`/anime/${heroAnime.id}`)")
         span.icon ▶
-        |  Ver Detalles
+        |  View Details
   main.main-content
+    FilterBar(
+      @open-modal="isFilterModalOpen = true"
+      @search-change="handleFilterChange"
+    )
     .content-header
-      h3.section-title Explorar Catálogo
+      h3.section-title {{ hasActiveFilters ? 'Filtered Results' : 'Explore Catalog' }}
       .section-line
     .error-container(
       v-if="initialError"
@@ -42,7 +46,7 @@
       .error-content
         span.error-icon ⚠️
         p {{ initialError }}
-        button.retry-btn(@click="refreshNuxtData()") Reintentar
+        button.retry-btn(@click="refreshNuxtData()") Retry
     AnimeList(
       v-else
       :animes="animeList"
@@ -51,6 +55,12 @@
       :error="loadMoreError"
       @load-more="handleLoadMore"
     )
+  
+  FilterModal(
+    v-model="isFilterModalOpen"
+    @apply="handleFilterChange"
+  )
+  
   footer.page-footer
     p
       | Powered by 
@@ -62,9 +72,13 @@ import { transformToAnimeCard } from '~/utils/transformers';
 import { ITEMS_PER_PAGE, INITIAL_PAGE } from '~/constants';
 
 useHead({
-  title: 'Anime Collection - Premium',
+  title: 'Anime Collection - Discover & Explore Top Anime',
   meta: [
-    { name: 'description', content: 'Explora el universo del anime con la mejor calidad visual.' }
+    { name: 'description', content: 'Discover and explore the best anime series and movies. Browse through thousands of titles with advanced filters and ratings.' },
+    { name: 'keywords', content: 'anime list, top anime, anime search, anime database, anime ratings, jikan api' },
+    { property: 'og:title', content: 'Anime Collection - Discover & Explore Top Anime' },
+    { property: 'og:description', content: 'Discover and explore the best anime series and movies. Browse through thousands of titles with advanced filters.' },
+    { property: 'og:type', content: 'website' }
   ]
 });
 
@@ -75,8 +89,16 @@ const {
   hasMore, 
   error: loadMoreError, 
   loadMore,
-  initializeList 
+  initializeList,
+  refresh,
+  saveScrollPosition,
+  restoreScrollPosition
 } = useAnimeList();
+
+const { hasActiveFilters, buildApiParams } = useAnimeFilters();
+
+// Modal state
+const isFilterModalOpen = ref(false);
 
 // Computed Hero Anime - Show Naruto as featured
 const heroAnime = computed(() => {
@@ -89,20 +111,31 @@ const heroAnime = computed(() => {
 
 const initialError = ref<string | null>(null);
 
-const { data: initialData, error: fetchError } = await getAnimeList(INITIAL_PAGE, ITEMS_PER_PAGE);
+// Only load initial data if list is empty
+// This prevents reloading when returning from detail page
+const shouldLoadInitialData = animeList.value.length === 0;
 
-if (fetchError.value) {
-  initialError.value = 'No se pudo conectar con el servidor de anime.';
-}
+if (shouldLoadInitialData) {
+  const currentFilters = hasActiveFilters.value ? buildApiParams() : undefined;
+  const { data: initialData, error: fetchError } = await getAnimeList(
+    INITIAL_PAGE, 
+    ITEMS_PER_PAGE,
+    currentFilters
+  );
 
-if (initialData.value?.data && !fetchError.value) {
-  const animes = initialData.value.data.map(transformToAnimeCard);
-  const pagination = {
-    currentPage: initialData.value.pagination.current_page,
-    totalPages: initialData.value.pagination.last_visible_page,
-    hasMore: initialData.value.pagination.has_next_page
-  };
-  initializeList(animes, pagination);
+  if (fetchError.value) {
+    initialError.value = 'Could not connect to anime server.';
+  }
+
+  if (initialData.value?.data && !fetchError.value) {
+    const animes = initialData.value.data.map(transformToAnimeCard);
+    const pagination = {
+      currentPage: initialData.value.pagination.current_page,
+      totalPages: initialData.value.pagination.last_visible_page,
+      hasMore: initialData.value.pagination.has_next_page
+    };
+    initializeList(animes, pagination);
+  }
 }
 
 const handleLoadMore = () => {
@@ -110,6 +143,24 @@ const handleLoadMore = () => {
     loadMore();
   }
 };
+
+const handleFilterChange = async () => {
+  const params = buildApiParams();
+  await refresh(params);
+};
+
+// Restore scroll position when returning from detail page
+onMounted(() => {
+  // Small delay to ensure DOM is fully rendered
+  setTimeout(() => {
+    restoreScrollPosition();
+  }, 150);
+});
+
+// Save scroll position before navigating away
+onBeforeRouteLeave(() => {
+  saveScrollPosition();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -401,8 +452,8 @@ const handleLoadMore = () => {
   .immersive-hero {
     padding: $spacing-lg;
     height: 60dvh;
-    align-items: center;
-    justify-content: flex-end;
+    align-items: flex-end;
+    justify-content: center;
   }
 
   .hero-nav {
@@ -505,7 +556,6 @@ const handleLoadMore = () => {
   }
 
   .content-header {
-    flex-direction: column; // Stack title and line
     align-items: flex-start;
     gap: $spacing-sm;
     margin-bottom: $spacing-xl;

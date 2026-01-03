@@ -18,7 +18,7 @@ Teleport(to="body")
       )
         button.modal-close(
           @click="closeModal"
-          aria-label="Cerrar modal"
+          aria-label="Close modal"
           type="button"
         )
           svg(

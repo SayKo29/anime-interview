@@ -185,3 +185,24 @@ export interface JikanErrorResponse {
   message: string;
   error: string;
 }
+
+// Genre/Theme types
+export interface JikanGenre {
+  mal_id: number;
+  name: string;
+  url: string;
+  count: number;
+}
+
+export interface JikanGenresResponse {
+  data: JikanGenre[];
+}
+
+// Filter parameters for anime search
+export interface AnimeFilterParams {
+  q?: string;              // Search query by text
+  genres?: string;         // Genre IDs separated by commas
+  themes?: string;         // Theme IDs separated by commas
+  order_by?: 'title' | 'score' | 'popularity';
+  sort?: 'asc' | 'desc';
+}

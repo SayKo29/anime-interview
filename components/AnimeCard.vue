@@ -13,7 +13,7 @@ article.anime-card(
       img.anime-card__image(
         :src="anime.imageUrl"
         :srcset="`${anime.imageUrlSmall} 480w, ${anime.imageUrl} 800w`"
-        :alt="`Poster de ${anime.title}`"
+        :alt="`${anime.title} poster`"
         :class="{ 'is-active': activeAnime === anime.id }"
         loading="lazy"
       )

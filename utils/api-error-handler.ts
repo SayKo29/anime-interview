@@ -23,7 +23,7 @@ export function handleApiError(error: unknown): ApiError {
   // Network error
   if (error instanceof TypeError && error.message.includes('fetch')) {
     return new ApiError(
-      'Error de conexión. Por favor verifica tu conexión a internet.',
+      'Connection error. Please check your internet connection.',
       0,
       'network_error'
     );
@@ -36,14 +36,14 @@ export function handleApiError(error: unknown): ApiError {
     switch (jikanError.status) {
       case 404:
         return new ApiError(
-          'Anime no encontrado',
+          'Anime not found',
           404,
           'not_found'
         );
       
       case 429:
         return new ApiError(
-          'Demasiadas solicitudes. Por favor espera un momento antes de intentar de nuevo.',
+          'Too many requests. Please wait a moment before trying again.',
           429,
           'rate_limit'
         );
@@ -52,14 +52,14 @@ export function handleApiError(error: unknown): ApiError {
       case 502:
       case 503:
         return new ApiError(
-          'Error del servidor. Por favor intenta de nuevo más tarde.',
+          'Server error. Please try again later.',
           jikanError.status,
           'server_error'
         );
       
       default:
         return new ApiError(
-          jikanError.message || 'Error desconocido',
+          jikanError.message || 'Unknown error',
           jikanError.status,
           jikanError.type || 'unknown'
         );
@@ -77,7 +77,7 @@ export function handleApiError(error: unknown): ApiError {
 
   // Unknown error
   return new ApiError(
-    'Ha ocurrido un error inesperado',
+    'An unexpected error occurred',
     500,
     'unknown'
   );
@@ -100,11 +100,11 @@ function isJikanError(error: unknown): error is JikanErrorResponse {
  */
 export function getFriendlyErrorMessage(error: ApiError): string {
   const messages: Record<string, string> = {
-    network_error: 'No se pudo conectar al servidor. Verifica tu conexión a internet.',
-    not_found: 'El anime que buscas no existe.',
-    rate_limit: 'Has hecho muchas solicitudes. Espera unos segundos e intenta de nuevo.',
-    server_error: 'El servidor está experimentando problemas. Intenta más tarde.',
-    unknown: 'Ha ocurrido un error inesperado. Por favor intenta de nuevo.'
+    network_error: 'Could not connect to the server. Check your internet connection.',
+    not_found: 'The anime you are looking for does not exist.',
+    rate_limit: 'You have made too many requests. Wait a few seconds and try again.',
+    server_error: 'The server is experiencing problems. Try again later.',
+    unknown: 'An unexpected error occurred. Please try again.'
   };
 
   return messages[error.type] || error.message;

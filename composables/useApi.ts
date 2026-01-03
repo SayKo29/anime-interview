@@ -8,7 +8,9 @@ import type {
   JikanAnimeListResponse, 
   JikanAnimeDetailResponse,
   JikanEpisode,
-  JikanEpisodeDetailResponse 
+  JikanEpisodeDetailResponse,
+  JikanGenresResponse,
+  AnimeFilterParams
 } from '~/types/jikan.types';
 
 export const useApi = () => {
@@ -16,14 +18,47 @@ export const useApi = () => {
   const baseURL = config.public.jikanApiBase;
 
   /**
-   * Fetches anime list with pagination
-   * Uses Nuxt's useFetch for automatic caching and SSR support
+   * Creates a unique cache key from filter parameters
+   * Ensures consistent caching across different filter combinations
    */
-  const getAnimeList = (page: number = 1, limit: number = 24) => {
+  const createFilterKey = (filters?: AnimeFilterParams): string => {
+    if (!filters) return 'default';
+    
+    // Sort and stringify filters to create consistent keys
+    const filterEntries = Object.entries(filters)
+      .filter(([_, value]) => value !== undefined && value !== null && value !== '')
+      .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+      .map(([key, value]) => `${key}:${value}`);
+    
+    return filterEntries.length > 0 ? filterEntries.join('|') : 'default';
+  };
+
+  /**
+   * Fetches anime list with pagination and optional filters
+   * Uses Nuxt's useFetch for automatic caching and SSR support
+   * Cache key includes all filter parameters for proper invalidation
+   */
+  const getAnimeList = (
+    page: number = 1, 
+    limit: number = 24,
+    filters?: AnimeFilterParams
+  ) => {
+    const query: Record<string, any> = { page, limit };
+    
+    // Add filter parameters if provided
+    if (filters?.q) query.q = filters.q;
+    if (filters?.genres) query.genres = filters.genres;
+    if (filters?.themes) query.themes = filters.themes;
+    if (filters?.order_by) query.order_by = filters.order_by;
+    if (filters?.sort) query.sort = filters.sort;
+    
+    // Create unique key based on filters
+    const filterKey = createFilterKey(filters);
+    
     return useFetch<JikanAnimeListResponse>('/anime', {
       baseURL,
-      key: `anime-list-${page}-${limit}`,
-      query: { page, limit },
+      key: `anime-list-${page}-${limit}-${filterKey}`,
+      query,
       // Aggressive caching strategy
       getCachedData: (key) => {
         const nuxtApp = useNuxtApp();
@@ -89,10 +124,43 @@ export const useApi = () => {
     );
   };
 
+  /**
+   * Fetches list of anime genres
+   * Results are heavily cached as genres rarely change
+   */
+  const getAnimeGenres = () => {
+    return useFetch<JikanGenresResponse>('/genres/anime', {
+      baseURL,
+      key: 'anime-genres',
+      getCachedData: (key) => {
+        const nuxtApp = useNuxtApp();
+        return nuxtApp.payload.data[key] || nuxtApp.static.data[key];
+      },
+    });
+  };
+
+  /**
+   * Fetches list of anime themes
+   * Results are heavily cached as themes rarely change
+   */
+  const getAnimeThemes = () => {
+    return useFetch<JikanGenresResponse>('/genres/anime', {
+      baseURL,
+      key: 'anime-themes',
+      query: { filter: 'themes' },
+      getCachedData: (key) => {
+        const nuxtApp = useNuxtApp();
+        return nuxtApp.payload.data[key] || nuxtApp.static.data[key];
+      },
+    });
+  };
+
   return {
     getAnimeList,
     getAnimeDetail,
     getAnimeEpisodes,
     getEpisodeDetail,
+    getAnimeGenres,
+    getAnimeThemes,
   };
 };

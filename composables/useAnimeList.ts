@@ -4,6 +4,7 @@
  */
 
 import type { AnimeCard } from '~/types/anime.types';
+import type { AnimeFilterParams } from '~/types/jikan.types';
 import { transformToAnimeCard } from '~/utils/transformers';
 import { ITEMS_PER_PAGE } from '~/constants';
 
@@ -17,6 +18,8 @@ export const useAnimeList = () => {
   const hasMore = useState<boolean>('animeHasMore', () => true);
   const loading = useState<boolean>('animeLoading', () => false);
   const error = useState<string | null>('animeError', () => null);
+  const currentFilters = useState<AnimeFilterParams | undefined>('animeCurrentFilters', () => undefined);
+  const scrollPosition = useState<number>('animeScrollPosition', () => 0);
 
   /**
    * Loads next page of animes
@@ -31,7 +34,11 @@ export const useAnimeList = () => {
 
     try {
       const nextPage = currentPage.value + 1;
-      const { data: response, error: fetchError } = await getAnimeList(nextPage, ITEMS_PER_PAGE);
+      const { data: response, error: fetchError } = await getAnimeList(
+        nextPage, 
+        ITEMS_PER_PAGE,
+        currentFilters.value
+      );
       
       if (fetchError.value) {
         throw new Error(fetchError.value.message || 'Failed to fetch anime list');
@@ -87,6 +94,79 @@ export const useAnimeList = () => {
     error.value = null;
   };
 
+  /**
+   * Refreshes the list with new filters
+   * Resets pagination and fetches first page with filters
+   */
+  const refresh = async (filters?: AnimeFilterParams) => {
+    reset();
+    loading.value = true;
+    currentFilters.value = filters;
+
+    try {
+      const { data: response, error: fetchError } = await getAnimeList(
+        1, 
+        ITEMS_PER_PAGE, 
+        filters
+      );
+      
+      if (fetchError.value) {
+        throw new Error(fetchError.value.message || 'Failed to fetch anime list');
+      }
+
+      if (response.value?.data) {
+        const transformedAnimes = response.value.data.map(transformToAnimeCard);
+        initializeList(transformedAnimes, {
+          currentPage: response.value.pagination.current_page,
+          totalPages: response.value.pagination.last_visible_page,
+          hasMore: response.value.pagination.has_next_page,
+        });
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : 'Error fetching anime list. Please try again.';
+      error.value = errorMessage;
+      console.error('Error refreshing anime list:', err);
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  /**
+   * Saves current scroll position
+   * Call this before navigating to detail page
+   */
+  const saveScrollPosition = () => {
+    if (typeof window !== 'undefined') {
+      scrollPosition.value = window.scrollY || document.documentElement.scrollTop;
+    }
+  };
+
+  /**
+   * Restores saved scroll position
+   * Call this after returning from detail page
+   */
+  const restoreScrollPosition = () => {
+    if (typeof window !== 'undefined' && scrollPosition.value > 0) {
+      // Use nextTick to ensure DOM is fully rendered
+      nextTick(() => {
+        window.scrollTo({
+          top: scrollPosition.value,
+          behavior: 'instant' as ScrollBehavior
+        });
+      });
+    }
+  };
+
+  /**
+   * Clears saved scroll position
+   * Call this when filters change or list is reset
+   */
+  const clearScrollPosition = () => {
+    scrollPosition.value = 0;
+  };
+
   return {
     // State
     animeList,
@@ -95,9 +175,15 @@ export const useAnimeList = () => {
     hasMore,
     loading,
     error,
+    currentFilters,
+    scrollPosition: readonly(scrollPosition),
     // Actions
     loadMore,
     initializeList,
     reset,
+    refresh,
+    saveScrollPosition,
+    restoreScrollPosition,
+    clearScrollPosition,
   };
 };

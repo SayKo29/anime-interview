@@ -2,10 +2,10 @@
 article.skeleton-card(
   role="status"
   aria-busy="true"
-  aria-label="Cargando anime..."
+  aria-label="Loading anime..."
 )
   figure.skeleton-card__image(aria-hidden="true")
-    span.sr-only Cargando imagen
+    span.sr-only Loading image
   header.skeleton-card__content
     span.skeleton-card__title(aria-hidden="true")
     span.skeleton-card__subtitle(aria-hidden="true")
