@@ -3,25 +3,38 @@ BaseModal(
   v-model="isOpen"
   modal-class="episode-modal"
   aria-labelledby="episode-modal-title"
+  @opened="handleModalOpened"
+  @closed="handleModalClosed"
 )
   .episode-modal-content
     .episode-loading(v-if="loading")
-      .episode-loading__spinner
-        .spinner-ring
-        .spinner-ring
-        .spinner-ring
-      p.episode-loading__text Cargando detalles del episodio...
+      .episode-skeleton
+        .episode-skeleton__header
+          .episode-skeleton__number
+          .episode-skeleton__info
+            .episode-skeleton__title
+            .episode-skeleton__subtitle
+        .episode-skeleton__meta
+          .episode-skeleton__meta-item
+          .episode-skeleton__meta-item
+        .episode-skeleton__content
+          .episode-skeleton__line
+          .episode-skeleton__line
+          .episode-skeleton__line.episode-skeleton__line--short
+    .episode-error(v-else-if="error")
+      p.episode-error__text {{ error }}
+      button.episode-error__retry(@click="loadEpisodeDetails") Reintentar
     .episode-detail(v-else-if="fullEpisodeData")
       header.episode-header
         .episode-header__number
           span.episode-header__label EP
-          span.episode-header__value {{ episodeData.mal_id }}
+          span.episode-header__value {{ fullEpisodeData.mal_id }}
         .episode-header__info
           h2#episode-modal-title.episode-header__title {{ fullEpisodeData.title || `Episode ${fullEpisodeData.mal_id}` }}
           p.episode-header__title-japanese(v-if="fullEpisodeData.title_japanese") {{ fullEpisodeData.title_japanese }}
           p.episode-header__title-romanji(v-if="fullEpisodeData.title_romanji") {{ fullEpisodeData.title_romanji }}
       .episode-meta
-        .episode-meta-item(v-if="episodeData.aired")
+        .episode-meta-item(v-if="fullEpisodeData.aired")
           svg.episode-meta-item__icon(
             width="20"
             height="20"
@@ -44,13 +57,13 @@ BaseModal(
             path(d="M8 8L12 10L8 12V8Z" fill="currentColor")
           .episode-meta-item__content
             span.episode-meta-item__label Duración
-            span.episode-meta-item__value {{ episodeData.duration }} min
+            span.episode-meta-item__value {{ fullEpisodeData.duration }} min
       .episode-badges(v-if="fullEpisodeData.filler || fullEpisodeData.recap")
         .episode-badge.episode-badge--filler(v-if="fullEpisodeData.filler")
           svg(width="16" height="16" viewBox="0 0 16 16" fill="currentColor")
             path(d="M8 0L10.4 5.6L16 8L10.4 10.4L8 16L5.6 10.4L0 8L5.6 5.6L8 0Z")
           | Episodio Filler
-        .episode-badge.episode-badge--recap(v-if="episodeData.recap")
+        .episode-badge.episode-badge--recap(v-if="fullEpisodeData.recap")
           svg(width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5")
             path(d="M14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2")
             path(d="M8 2L11 5L8 8" stroke-linecap="round" stroke-linejoin="round")
@@ -60,8 +73,8 @@ BaseModal(
         p.episode-description__text {{ fullEpisodeData.synopsis }}
       .episode-links
         a.episode-link(
-          v-if="episodeData.url"
-          :href="episodeData.url"
+          v-if="fullEpisodeData.url"
+          :href="fullEpisodeData.url"
           target="_blank"
           rel="noopener noreferrer"
         )
@@ -101,29 +114,52 @@ const isOpen = computed({
   set: (value) => emit('update:modelValue', value)
 });
 
-const { getEpisodeDetail } = useEpisodeDetail();
+const { getEpisodeDetail } = useApi();
 
-const fullEpisodeData = ref<JikanEpisode | null>(props.episode);
+// Computed property that returns episode data (basic or full)
+const episodeData = computed(() => props.episode);
+
+// State for full episode details
+const fullEpisodeData = ref<JikanEpisode | null>(null);
 const loading = ref(false);
+const error = ref<string | null>(null);
 
-// Fetch full episode details when modal opens
-watch(() => props.modelValue, async (isModalOpen) => {
-  if (isModalOpen && props.episode && props.animeId) {
-    fullEpisodeData.value = props.episode;
+// Function to load full episode details
+const loadEpisodeDetails = async () => {
+  if (!props.episode || !props.animeId) return;
+  
+  loading.value = true;
+  error.value = null;
+  fullEpisodeData.value = null;
+  
+  try {
+    const { data, error: fetchError } = await getEpisodeDetail(props.animeId, props.episode.mal_id);
     
-    loading.value = true;
-    try {
-      const detail = await getEpisodeDetail(props.animeId, props.episode.mal_id);
-      if (detail) {
-        fullEpisodeData.value = detail;
-      }
-    } catch (error) {
-      console.error('Error loading episode details:', error);
-    } finally {
-      loading.value = false;
+    if (fetchError.value) {
+      throw new Error(fetchError.value.message || 'Error fetching episode details');
     }
+    
+    if (data.value?.data) {
+      fullEpisodeData.value = data.value.data;
+    }
+  } catch (err) {
+    console.error('Error loading episode details:', err);
+    error.value = 'No se pudieron cargar los detalles del episodio';
+    // Fallback to basic episode data
+    fullEpisodeData.value = props.episode;
+  } finally {
+    loading.value = false;
   }
-}, { immediate: true });
+};
+
+const handleModalOpened = () => {
+  loadEpisodeDetails();
+};
+
+const handleModalClosed = () => {
+  fullEpisodeData.value = null;
+  error.value = null;
+};
 
 const formatDate = (dateString: string) => {
   try {
@@ -143,6 +179,163 @@ const formatDate = (dateString: string) => {
 <style lang="scss" scoped>
 .episode-modal-content {
   min-height: 200px;
+}
+
+.episode-loading {
+  padding: 0;
+}
+
+.episode-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xl;
+  animation: fadeIn 0.3s ease-out;
+  
+  &__header {
+    display: flex;
+    gap: $spacing-xl;
+    padding-bottom: $spacing-xl;
+    border-bottom: 2px solid rgba($color-primary, 0.1);
+  }
+  
+  &__number {
+    min-width: 90px;
+    height: 90px;
+    background: linear-gradient(
+      90deg,
+      rgba($color-primary, 0.1) 0%,
+      rgba($color-primary, 0.2) 50%,
+      rgba($color-primary, 0.1) 100%
+    );
+    background-size: 200% 100%;
+    border-radius: $radius-2xl;
+    animation: shimmer 1.5s infinite;
+    flex-shrink: 0;
+  }
+  
+  &__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    justify-content: center;
+  }
+  
+  &__title {
+    height: 32px;
+    width: 70%;
+    background: linear-gradient(
+      90deg,
+      rgba($color-text-secondary, 0.1) 0%,
+      rgba($color-text-secondary, 0.2) 50%,
+      rgba($color-text-secondary, 0.1) 100%
+    );
+    background-size: 200% 100%;
+    border-radius: $radius-md;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  &__subtitle {
+    height: 20px;
+    width: 50%;
+    background: linear-gradient(
+      90deg,
+      rgba($color-text-secondary, 0.08) 0%,
+      rgba($color-text-secondary, 0.15) 50%,
+      rgba($color-text-secondary, 0.08) 100%
+    );
+    background-size: 200% 100%;
+    border-radius: $radius-sm;
+    animation: shimmer 1.5s infinite 0.1s;
+  }
+  
+  &__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-lg;
+  }
+  
+  &__meta-item {
+    height: 80px;
+    background: linear-gradient(
+      90deg,
+      rgba($color-bg-primary, 0.3) 0%,
+      rgba($color-bg-primary, 0.5) 50%,
+      rgba($color-bg-primary, 0.3) 100%
+    );
+    background-size: 200% 100%;
+    border-radius: $radius-lg;
+    animation: shimmer 1.5s infinite;
+    
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+  }
+  
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+  
+  &__line {
+    height: 16px;
+    width: 100%;
+    background: linear-gradient(
+      90deg,
+      rgba($color-text-secondary, 0.06) 0%,
+      rgba($color-text-secondary, 0.12) 50%,
+      rgba($color-text-secondary, 0.06) 100%
+    );
+    background-size: 200% 100%;
+    border-radius: $radius-sm;
+    animation: shimmer 1.5s infinite;
+    
+    &:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+    
+    &:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+    
+    &--short {
+      width: 60%;
+    }
+  }
+}
+
+.episode-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-4xl;
+  gap: $spacing-lg;
+  
+  &__text {
+    color: $color-error-text;
+    font-size: $font-size-md;
+    text-align: center;
+    margin: 0;
+  }
+  
+  &__retry {
+    padding: $spacing-sm $spacing-lg;
+    background: rgba($color-primary, 0.1);
+    border: 1px solid rgba($color-primary, 0.3);
+    border-radius: $radius-md;
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: all $transition-medium;
+    
+    &:hover {
+      background: rgba($color-primary, 0.2);
+      border-color: rgba($color-primary, 0.5);
+      transform: scale(1.05);
+    }
+  }
 }
 
 .episode-detail {
@@ -193,7 +386,8 @@ const formatDate = (dateString: string) => {
     height: 90px;
     background: linear-gradient(135deg, $color-primary, $color-secondary);
     box-shadow: 0 8px 32px rgba($color-primary, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 0 3px rgba($color-primary, 0.2);
     border-radius: $radius-2xl;
     flex-shrink: 0;
     position: relative;
@@ -207,20 +401,34 @@ const formatDate = (dateString: string) => {
       transform: translateX(-100%);
       animation: shimmer 2s infinite;
     }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), transparent 60%);
+    }
   }
   
   &__label {
     font-size: $font-size-xs;
     font-weight: $font-weight-bold;
-    color: $color-text-secondary;
+    color: rgba(255, 255, 255, 0.9);
     letter-spacing: 2px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 1;
   }
   
   &__value {
     font-size: $font-size-3xl;
     font-weight: $font-weight-black;
-    color: $color-primary;
+    color: #FFFFFF;
     line-height: 1;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4),
+                 0 1px 2px rgba(0, 0, 0, 0.6);
+    position: relative;
+    z-index: 1;
   }
   
   &__info {
@@ -384,12 +592,12 @@ const formatDate = (dateString: string) => {
 }
 
 // Animations
-@keyframes spinRing {
+@keyframes shimmer {
   0% {
-    transform: rotate(0deg);
+    background-position: 200% 0;
   }
   100% {
-    transform: rotate(360deg);
+    background-position: -200% 0;
   }
 }
 
@@ -432,12 +640,6 @@ const formatDate = (dateString: string) => {
   to {
     opacity: 1;
     transform: translateX(0);
-  }
-}
-
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
   }
 }
 

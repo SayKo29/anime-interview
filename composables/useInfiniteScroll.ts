@@ -1,8 +1,9 @@
 /**
  * Composable for infinite scroll using Intersection Observer API
+ * Provides a clean, reusable way to implement infinite scrolling
  */
 
-import { ref, onMounted, onUnmounted, type Ref } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, type Ref } from 'vue';
 import { SCROLL_ROOT_MARGIN, SCROLL_THRESHOLD } from '~/constants';
 
 export const useInfiniteScroll = (
@@ -14,8 +15,10 @@ export const useInfiniteScroll = (
 
   /**
    * Initializes the Intersection Observer
+   * Uses IntersectionObserver for better performance than scroll events
    */
   const observe = () => {
+    // Skip on server-side
     if (import.meta.server) return;
     if (!target.value) return;
 
@@ -35,7 +38,7 @@ export const useInfiniteScroll = (
   };
 
   /**
-   * Disconnects the observer
+   * Disconnects and cleans up the observer
    */
   const disconnect = () => {
     if (observer.value) {
@@ -44,13 +47,17 @@ export const useInfiniteScroll = (
     }
   };
 
-  onMounted(() => {
-    setTimeout(observe, 100);
+  // Initialize observer after DOM is ready
+  onMounted(async () => {
+    await nextTick();
+    observe();
   });
 
+  // Cleanup on component unmount
   onUnmounted(disconnect);
 
   return {
-    target
+    target,
+    disconnect,
   };
 };

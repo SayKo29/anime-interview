@@ -40,8 +40,9 @@
             .anime-stat
               .anime-stat__icon-box
                 svg(viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2")
-                  rect(x="2" y="7" width="20" height="14" rx="2" ry="2")
-                  path(d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16")
+                  rect(x="2" y="3" width="20" height="14" rx="2")
+                  path(d="M8 21h8M12 17v4")
+                  circle(cx="12" cy="10" r="2" fill="currentColor")
               .anime-stat__data
                 span.anime-stat__value {{ anime.episodes || '?' }}
                 span.anime-stat__label Episodes
@@ -64,7 +65,7 @@
                 v-for="genre in anime.genres" 
                 :key="genre.mal_id"
               ) {{ genre.name }}
-              span.anime-pill.anime-pill--theme(
+              span.anime-pill(
                 v-for="theme in anime.themes" 
                 :key="theme.mal_id"
               ) {{ theme.name }}
@@ -132,41 +133,31 @@
   <script setup lang="ts">
   import type { JikanEpisode } from '~/types/jikan.types';
   
-  const route = useRoute();
-  const animeId = route.params.id as string;
-  
-  // Estado del modal de episodios
-  const isEpisodeModalOpen = ref(false);
-  const selectedEpisode = ref<JikanEpisode | null>(null);
-  
-  // Fetch logic
-  const { getAnimeDetail, getAnimeEpisodes } = useAnimeDetail(animeId);
-  
-  const { data: anime, error, pending } = await useAsyncData(
-    `anime-${animeId}`,
-    () => getAnimeDetail(),
-    { server: true, lazy: false }
-  );
-  
-  const { data: episodes, pending: episodesLoading } = await useAsyncData(
-    `anime-${animeId}-episodes`,
-    () => getAnimeEpisodes(),
-    { server: false, lazy: true }
-  );
-  
-  // Utilities
-  const formatNumber = (num: number | null) => {
-    return num ? new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num) : '0';
-  };
-  
-  const handleEpisodeClick = (episode: JikanEpisode) => {
-    selectedEpisode.value = episode;
-    isEpisodeModalOpen.value = true;
-  };
-  
-  const goBack = () => navigateTo('/');
+const route = useRoute();
+const animeId = route.params.id as string;
 
-// Head management
+const isEpisodeModalOpen = ref(false);
+const selectedEpisode = ref<JikanEpisode | null>(null);
+
+const { getAnimeDetail, getAnimeEpisodes } = useApi();
+
+const { data: animeData, error, pending } = await getAnimeDetail(animeId);
+const anime = computed(() => animeData.value?.data);
+
+const { data: episodesData, pending: episodesLoading } = await getAnimeEpisodes(animeId);
+const episodes = computed(() => episodesData.value);
+
+const formatNumber = (num: number | null) => {
+  return num ? new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num) : '0';
+};
+
+const handleEpisodeClick = (episode: JikanEpisode) => {
+  selectedEpisode.value = episode;
+  isEpisodeModalOpen.value = true;
+};
+
+const goBack = () => navigateTo('/');
+
 if (anime.value) {
   useHead({
     title: anime.value.title,
@@ -176,11 +167,10 @@ if (anime.value) {
     ]
   });
 }
-  
-  // Error handling
-  if (error.value) {
-    throw createError({ statusCode: 404, statusMessage: 'Anime not found' });
-  }
+
+if (error.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Anime not found' });
+}
   </script>
   
   <style lang="scss" scoped>
@@ -477,14 +467,8 @@ if (anime.value) {
       color: #fff;
       transform: translateY(-2px);
     }
-  
-    &--theme {
-      border-color: rgba($color-secondary, 0.3);
-      color: $color-secondary;
-    }
   }
   
-  // SIDEBAR CARD
   .anime-info-card {
     padding: $spacing-xl;
     background: $color-bg-card;

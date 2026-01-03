@@ -19,7 +19,7 @@ article.episode-item(
       span.episode-item__badge(v-if="episode.filler") Filler
       span.episode-item__badge(v-if="episode.recap") Recap
   
-  .episode-item__arrow
+  .episode-item__action
     svg(
       width="20"
       height="20"
@@ -27,12 +27,18 @@ article.episode-item(
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     )
+      circle(
+        cx="10"
+        cy="10"
+        r="8"
+        stroke="currentColor"
+        stroke-width="1.5"
+      )
       path(
-        d="M7.5 15L12.5 10L7.5 5"
+        d="M10 7V10M10 13H10.01"
         stroke="currentColor"
         stroke-width="2"
         stroke-linecap="round"
-        stroke-linejoin="round"
       )
 </template>
 
@@ -102,8 +108,8 @@ const formatDate = (dateString: string) => {
       opacity: 1;
     }
     
-    .episode-item__arrow {
-      transform: translateX(4px);
+    .episode-item__action {
+      transform: scale(1.1);
       color: $color-primary;
     }
   }
@@ -179,7 +185,7 @@ const formatDate = (dateString: string) => {
     letter-spacing: 0.5px;
   }
   
-  @include element(arrow) {
+  @include element(action) {
     color: $color-text-secondary;
     transition: all $transition-medium;
     flex-shrink: 0;

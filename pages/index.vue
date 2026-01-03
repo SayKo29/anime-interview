@@ -68,7 +68,7 @@ useHead({
   ]
 });
 
-const { getAnimeList } = useJikanApi();
+const { getAnimeList } = useApi();
 const { 
   animeList, 
   loading, 
@@ -89,38 +89,20 @@ const heroAnime = computed(() => {
 
 const initialError = ref<string | null>(null);
 
-/**
- * SSR data fetching with aggressive caching
- */
-const { data: initialData, error: fetchError } = await useAsyncData(
-  'anime-list-initial',
-  async () => {
-    try {
-      const response = await getAnimeList(INITIAL_PAGE, ITEMS_PER_PAGE);
-      return {
-        animes: response.data.map(transformToAnimeCard),
-        pagination: {
-          currentPage: response.pagination.current_page,
-          totalPages: response.pagination.last_visible_page,
-          hasMore: response.pagination.has_next_page
-        }
-      };
-    } catch (err) {
-      console.error('Error fetching initial anime list:', err);
-      throw err;
-    }
-  },
-  {
-    getCachedData: (key) => useNuxtApp().payload.data[key] || useNuxtApp().static.data[key]
-  }
-);
+const { data: initialData, error: fetchError } = await getAnimeList(INITIAL_PAGE, ITEMS_PER_PAGE);
 
 if (fetchError.value) {
   initialError.value = 'No se pudo conectar con el servidor de anime.';
 }
 
-if (initialData.value && !fetchError.value) {
-  initializeList(initialData.value.animes, initialData.value.pagination);
+if (initialData.value?.data && !fetchError.value) {
+  const animes = initialData.value.data.map(transformToAnimeCard);
+  const pagination = {
+    currentPage: initialData.value.pagination.current_page,
+    totalPages: initialData.value.pagination.last_visible_page,
+    hasMore: initialData.value.pagination.has_next_page
+  };
+  initializeList(animes, pagination);
 }
 
 const handleLoadMore = () => {
