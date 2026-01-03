@@ -11,14 +11,11 @@ export default defineNuxtConfig({
     strict: true,
     typeCheck: true
   },
-
-  // View Transitions API for smooth animations
-  app: {
-    pageTransition: {
-      name: 'page',
-      mode: 'out-in'
-    },
+  experimental: {
     viewTransition: true,
+  },
+  // App configuration
+  app: {
     head: {
       title: 'Anime List - Jikan API',
       meta: [

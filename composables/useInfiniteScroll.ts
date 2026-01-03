@@ -2,7 +2,7 @@
  * Composable for infinite scroll using Intersection Observer API
  */
 
-import type { Ref } from 'vue';
+import { ref, onMounted, onUnmounted, type Ref } from 'vue';
 import { SCROLL_ROOT_MARGIN, SCROLL_THRESHOLD } from '~/constants';
 
 export const useInfiniteScroll = (
@@ -21,7 +21,6 @@ export const useInfiniteScroll = (
 
     observer.value = new IntersectionObserver(
       (entries) => {
-        // When the target element is visible, trigger the callback
         if (entries[0]?.isIntersecting) {
           callback();
         }
@@ -45,9 +44,7 @@ export const useInfiniteScroll = (
     }
   };
 
-  // Setup observer on mount and cleanup on unmount
   onMounted(() => {
-    // Small delay to ensure DOM is ready
     setTimeout(observe, 100);
   });
 

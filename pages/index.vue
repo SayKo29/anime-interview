@@ -1,8 +1,6 @@
 <template lang="pug">
 .home-page
-  //- Immersive Hero Section (Replaces separate Header + Hero)
   section.immersive-hero(v-if="heroAnime")
-    //- Background Layer
     .hero-backdrop
       img.hero-image(
         :src="heroAnime.imageUrlLarge"
@@ -12,14 +10,10 @@
       )
       .hero-gradient
       .hero-vignette
-
-    //- Floating Navbar
     nav.hero-nav
       h1.brand-logo
         | ANIME
         span.highlight COLLECTION
-
-    //- Hero Content
     .hero-content
       .hero-badges
         span.rank-badge Tendencia #1
@@ -28,26 +22,19 @@
           |  {{ heroAnime.score }}
         span.meta-badge {{ heroAnime.year || 'Clásico' }}
         span.meta-badge {{ heroAnime.type }}
-
       h2.hero-title {{ heroAnime.title }}
-
       .hero-genres(v-if="heroAnime.genres && heroAnime.genres.length")
         span.genre-text(
           v-for="genre in heroAnime.genres.slice(0, 3)"
           :key="genre.mal_id"
         ) {{ genre.name }}
-
       button.hero-cta(@click="navigateTo(`/anime/${heroAnime.id}`)")
         span.icon ▶
         |  Ver Detalles
-
-  //- Main Content
   main.main-content
     .content-header
       h3.section-title Explorar Catálogo
       .section-line
-
-    //- Error state
     .error-container(
       v-if="initialError"
       role="alert"
@@ -56,8 +43,6 @@
         span.error-icon ⚠️
         p {{ initialError }}
         button.retry-btn(@click="refreshNuxtData()") Reintentar
-
-    //- Anime List
     AnimeList(
       v-else
       :animes="animeList"
@@ -66,8 +51,6 @@
       :error="loadMoreError"
       @load-more="handleLoadMore"
     )
-
-  //- Footer
   footer.page-footer
     p
       | Powered by 
@@ -78,7 +61,6 @@
 import { transformToAnimeCard } from '~/utils/transformers';
 import { ITEMS_PER_PAGE, INITIAL_PAGE } from '~/constants';
 
-// SEO
 useHead({
   title: 'Anime Collection - Premium',
   meta: [
@@ -86,8 +68,6 @@ useHead({
   ]
 });
 
-// Composables
-// Composables
 const { getAnimeList } = useJikanApi();
 const { 
   animeList, 
@@ -101,19 +81,16 @@ const {
 // Computed Hero Anime - Show Naruto as featured
 const heroAnime = computed(() => {
   if (animeList.value && animeList.value.length > 0) {
-    // Find Naruto in the list
     const naruto = animeList.value.find(anime => anime.title.toLowerCase().includes('naruto'));
-    // Return Naruto if found, otherwise fallback to first anime
     return naruto || animeList.value[0];
   }
   return null;
 });
 
-// Initial error state
 const initialError = ref<string | null>(null);
 
 /**
- * SSR: Fetch initial data
+ * SSR data fetching with aggressive caching
  */
 const { data: initialData, error: fetchError } = await useAsyncData(
   'anime-list-initial',
@@ -154,15 +131,11 @@ const handleLoadMore = () => {
 </script>
 
 <style lang="scss" scoped>
-// ===== HOME PAGE =====
-
 .home-page {
   min-height: 100vh;
   background-color: $color-bg-primary;
   font-family: $font-primary;
 }
-
-// ===== IMMERSIVE HERO =====
 
 .immersive-hero {
   position: relative;
@@ -208,8 +181,6 @@ const handleLoadMore = () => {
   opacity: 0.6;
 }
 
-// ===== HERO NAVIGATION =====
-
 .hero-nav {
   position: absolute;
   top: 0;
@@ -230,8 +201,6 @@ const handleLoadMore = () => {
     color: $color-primary;
   }
 }
-
-// ===== HERO CONTENT =====
 
 .hero-content {
   position: relative;
@@ -349,8 +318,6 @@ const handleLoadMore = () => {
   animation: spin 1s $ease-linear infinite;
 }
 
-// ===== MAIN CONTENT =====
-
 .main-content {
   padding: $spacing-3xl;
   background: $color-bg-primary;
@@ -430,8 +397,6 @@ const handleLoadMore = () => {
   }
 }
 
-// ===== ANIMATIONS =====
-
 @keyframes slowZoom {
   from { transform: scale(1.0); }
   to { transform: scale(1.1); }
@@ -440,8 +405,6 @@ const handleLoadMore = () => {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
-// ===== RESPONSIVE =====
 
 @include desktop {
   .hero-title {

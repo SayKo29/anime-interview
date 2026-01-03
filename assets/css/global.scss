@@ -230,3 +230,43 @@ select {
     scroll-behavior: auto !important;
   }
 }
+
+// ===== VIEW TRANSITIONS API =====
+// Nuxt 4 native View Transitions support
+
+@supports (view-transition-name: none) {
+  // Root page transitions - general fade
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.4s;
+  }
+  
+  // Selected anime image transition - smooth morph between list and detail
+  ::view-transition-old(selected-anime-image),
+  ::view-transition-new(selected-anime-image) {
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  // Selected anime title transition - smooth text morph
+  ::view-transition-old(selected-anime-title),
+  ::view-transition-new(selected-anime-title) {
+    animation-duration: 0.4s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    // Ancho automático para que el texto se ajuste
+    width: auto;
+  }
+}
+
+// Fade animations for view transitions
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}

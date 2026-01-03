@@ -7,37 +7,27 @@ article.anime-card(
   @keydown.enter="handleClick"
   @keydown.space.prevent="handleClick"
 )
-  //- Ambilight Glow (Backdrop)
   .anime-card__glow(aria-hidden="true")
-
-  //- Main Card Container
   .anime-card__main
-    //- Image Layer
     figure.anime-card__figure
       img.anime-card__image(
         :src="anime.imageUrl"
         :srcset="`${anime.imageUrlSmall} 480w, ${anime.imageUrl} 800w`"
         :alt="`Poster de ${anime.title}`"
+        :class="{ 'is-active': activeAnime === anime.id }"
         loading="lazy"
       )
-
-    //- Gradient Overlay
     .anime-card__overlay(aria-hidden="true")
-
-    //- Content Layer
     .anime-card__content
-      //- Header (Score)
       header.anime-card__header
         .anime-card__score(v-if="anime.score")
           span.anime-card__score-icon(aria-hidden="true") ★
           span.anime-card__score-value {{ anime.score.toFixed(1) }}
-
-      //- Footer (Info)
       footer.anime-card__footer
-        h3.anime-card__title {{ anime.title }}
-
+        h3.anime-card__title(
+          :class="{ 'is-active': activeAnime === anime.id }"
+        ) {{ anime.title }}
         .anime-card__details
-          //- Meta Information
           .anime-card__meta
             span.anime-card__meta-item.anime-card__meta-item--year {{ anime.year || 'N/A' }}
             span.anime-card__meta-separator(aria-hidden="true") •
@@ -45,8 +35,6 @@ article.anime-card(
             template(v-if="anime.episodes")
               span.anime-card__meta-separator(aria-hidden="true") •
               span.anime-card__meta-item {{ anime.episodes }} eps
-
-          //- Genres
           .anime-card__genres(v-if="anime.genres && anime.genres.length")
             span.anime-card__genre(
               v-for="genre in anime.genres.slice(0, 3)"
@@ -56,16 +44,18 @@ article.anime-card(
 
 <script setup lang="ts">
 import type { AnimeCard } from '~/types/anime.types';
-import { useViewTransition } from '~/composables/useViewTransition';
 
 interface Props {
   anime: AnimeCard;
 }
 
 const props = defineProps<Props>();
-const { navigate } = useViewTransition();
+
+// Shared state for tracking active anime during View Transition
+const activeAnime = useState<number | null>('activeAnime', () => null);
 
 const handleClick = () => {
+  activeAnime.value = props.anime.id;
   navigateTo(`/anime/${props.anime.id}`);
 };
 </script>
@@ -86,7 +76,6 @@ const handleClick = () => {
   box-shadow: $shadow-card;
   contain: layout;
 
-  // Hover state
   &:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: $shadow-card-hover;
@@ -120,13 +109,11 @@ const handleClick = () => {
     }
   }
 
-  // Focus state (keyboard navigation)
   &:focus {
     outline: 2px solid $color-primary;
     outline-offset: 4px;
   }
 
-  // Element: Ambilight glow effect
   &__glow {
     position: absolute;
     inset: -5%;
@@ -144,7 +131,6 @@ const handleClick = () => {
     pointer-events: none;
   }
 
-  // Element: Main card container
   &__main {
     position: absolute;
     inset: 0;
@@ -153,7 +139,6 @@ const handleClick = () => {
     transition: transform $transition-medium $ease-card-hover;
   }
 
-  // Element: Figure (image wrapper)
   &__figure {
     position: absolute;
     inset: 0;
@@ -161,16 +146,20 @@ const handleClick = () => {
     margin: 0;
   }
 
-  // Element: Poster image
   &__image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
     transition: transform 0.6s $ease-card-hover;
+    
+    // Only the clicked anime has view-transition-name for smooth navigation
+    &.is-active {
+      view-transition-name: selected-anime-image;
+      contain: layout;
+    }
   }
 
-  // Element: Gradient overlay
   &__overlay {
     position: absolute;
     inset: 0;
@@ -184,7 +173,6 @@ const handleClick = () => {
     transition: opacity $transition-medium $ease-out;
   }
 
-  // Element: Content layer
   &__content {
     position: absolute;
     inset: 0;
@@ -195,7 +183,6 @@ const handleClick = () => {
     z-index: $z-index-content;
   }
 
-  // Element: Header (score)
   &__header {
     display: flex;
     justify-content: flex-end;
@@ -203,7 +190,6 @@ const handleClick = () => {
     transition: opacity $transition-base $ease-out;
   }
 
-  // Element: Score pill
   &__score {
     background: $color-overlay-medium;
     backdrop-filter: $backdrop-blur-md;
@@ -227,14 +213,12 @@ const handleClick = () => {
     line-height: $line-height-none;
   }
 
-  // Element: Footer (title, meta, genres)
   &__footer {
     transform: translateY(0);
     opacity: 1;
     transition: transform $transition-medium $ease-card-hover;
   }
 
-  // Element: Title
   &__title {
     font-size: $font-size-lg;
     font-weight: $font-weight-extrabold;
@@ -243,9 +227,12 @@ const handleClick = () => {
     margin-bottom: $spacing-xs;
     line-height: $line-height-tight;
     @include truncate-text(2);
+    
+    &.is-active {
+      view-transition-name: selected-anime-title;
+    }
   }
 
-  // Element: Details wrapper
   &__details {
     display: flex;
     flex-direction: column;
@@ -257,7 +244,6 @@ const handleClick = () => {
                 opacity $transition-medium $ease-out;
   }
 
-  // Element: Meta information
   &__meta {
     display: flex;
     align-items: center;
@@ -269,12 +255,10 @@ const handleClick = () => {
   }
 
   &__meta-item {
-    // Modifier: Year
     &--year {
       font-weight: $font-weight-semibold;
     }
 
-    // Modifier: Type
     &--type {
       text-transform: uppercase;
       font-weight: $font-weight-bold;
@@ -287,7 +271,6 @@ const handleClick = () => {
     color: rgba(255, 255, 255, 0.5);
   }
 
-  // Element: Genres container
   &__genres {
     display: flex;
     flex-wrap: wrap;
@@ -299,7 +282,6 @@ const handleClick = () => {
                 opacity $transition-medium $ease-out;
   }
 
-  // Element: Genre pill
   &__genre {
     background: $color-overlay-white-15;
     backdrop-filter: $backdrop-blur-sm;
@@ -311,8 +293,6 @@ const handleClick = () => {
     font-weight: $font-weight-medium;
   }
 }
-
-// ===== RESPONSIVE =====
 
 @include mobile {
   .anime-card {
@@ -346,7 +326,6 @@ const handleClick = () => {
       padding: 3px 7px;
     }
 
-    // Hide genres on mobile for cleaner look
     &__genres {
       display: none;
     }
