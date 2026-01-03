@@ -195,9 +195,38 @@ const formatDate = (dateString: string) => {
     padding: $spacing-md;
     gap: $spacing-md;
     
+    // Disable hover on mobile (touch devices)
+    &:hover {
+      transform: none;
+      border-color: rgba($color-primary, 0.1);
+      background: $color-bg-secondary;
+      box-shadow: none;
+
+      &::before {
+        opacity: 0;
+      }
+
+      .episode-item__action {
+        transform: none;
+        color: $color-text-secondary;
+      }
+    }
+
+    // Active effect for touch
+    &:active {
+      transform: scale(0.98);
+      border-color: rgba($color-primary, 0.3);
+    }
+    
     @include element(number) {
       min-width: 50px;
       height: 50px;
+      border-radius: $radius-sm;
+    }
+
+    @include element(number-label) {
+      font-size: 10px;
+      letter-spacing: 0.5px;
     }
       
     @include element(number-value) {
@@ -206,6 +235,31 @@ const formatDate = (dateString: string) => {
     
     @include element(title) {
       font-size: $font-size-sm;
+      margin-bottom: $spacing-xxs;
+      @include truncate-text(2);
+    }
+
+    @include element(meta) {
+      gap: $spacing-sm;
+    }
+
+    @include element(date) {
+      font-size: 0.75rem;
+    }
+
+    @include element(badge) {
+      padding: 2px $spacing-xs;
+      font-size: 10px;
+    }
+
+    @include element(action) {
+      width: 18px;
+      height: 18px;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
     }
   }
 }

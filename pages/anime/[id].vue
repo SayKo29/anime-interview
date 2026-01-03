@@ -182,7 +182,7 @@ if (error.value) {
   </script>
   
   <style lang="scss" scoped>
-  // Variables locales para el componente
+  // Local variables for the component
   $z-back: 0;
   $z-content: 10;
   $z-nav: 20;
@@ -195,7 +195,7 @@ if (error.value) {
     overflow-x: hidden;
     padding-bottom: $spacing-4xl;
   
-    // 1. BACKDROP CINEMÁTICO
+    // 1. CINEMATIC BACKDROP
     @include element(backdrop) {
       position: fixed;
       top: 0;
@@ -534,11 +534,16 @@ if (error.value) {
   // ===== MOBILE STYLES =====
   @include mobile {
     .anime-page {
+      padding-bottom: $spacing-2xl;
+
       &__back {
-        top: $spacing-md;
-        left: $spacing-md;
-        padding: $spacing-xs $spacing-md;
+        top: $spacing-sm;
+        left: $spacing-sm;
+        padding: $spacing-xs $spacing-sm;
         font-size: $font-size-sm;
+        min-width: 44px;
+        min-height: 44px;
+        justify-content: center;
 
         span {
           display: none;
@@ -552,29 +557,45 @@ if (error.value) {
 
       &__content {
         padding: 0 $spacing-md;
-        padding-top: 80px;
+        padding-top: 70px;
       }
     }
 
     .anime-hero {
       grid-template-columns: 1fr;
-      gap: $spacing-lg;
+      gap: $spacing-xl;
       text-align: center;
-      margin-bottom: $spacing-2xl;
+      margin-bottom: $spacing-xl;
 
       &__poster-wrapper {
-        max-width: 250px;
+        max-width: 220px;
         margin: 0 auto;
         animation: none;
+
+        &::after {
+          filter: blur(8px);
+        }
+      }
+
+      &__info {
+        padding-bottom: 0;
+        align-items: center;
       }
 
       &__meta {
         justify-content: center;
       }
 
+      &__title {
+        font-size: clamp(1.75rem, 8vw, 2.5rem);
+        line-height: 1.1;
+        margin-bottom: $spacing-sm;
+        text-align: center;
+      }
+
       &__subtitle {
-        font-size: $font-size-md;
-        margin-bottom: $spacing-lg;
+        font-size: $font-size-base;
+        margin-bottom: $spacing-md;
       }
     }
 
@@ -586,25 +607,47 @@ if (error.value) {
     .anime-stats {
       width: 100%;
       justify-content: space-around;
-      gap: $spacing-md;
+      gap: $spacing-sm;
+      padding: $spacing-md;
+      margin-top: $spacing-lg;
     }
 
     .anime-stat {
       flex-direction: column;
-      gap: $spacing-xs;
+      gap: $spacing-xxs;
       text-align: center;
+      min-width: 0;
+
+      &__ring {
+        width: 36px;
+        height: 36px;
+      }
+
+      &__icon {
+        width: 16px;
+        height: 16px;
+      }
 
       &__icon-box {
         width: 20px;
         height: 20px;
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      &__data {
+        gap: 2px;
       }
 
       &__value {
-        font-size: 1rem;
+        font-size: $font-size-base;
       }
 
       &__label {
-        font-size: 0.65rem;
+        font-size: 0.625rem;
       }
     }
 
@@ -615,52 +658,92 @@ if (error.value) {
 
     .anime-section {
       &__title {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
         margin-bottom: $spacing-md;
 
         &::before {
-          height: 20px;
+          width: 3px;
+          height: 18px;
         }
       }
 
       &__header {
-        flex-direction: column;
-        align-items: flex-start;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
         gap: $spacing-sm;
+        margin-bottom: $spacing-md;
       }
 
       &__count {
         font-size: $font-size-xs;
+        color: $color-text-muted;
       }
     }
 
     .anime-synopsis {
-      font-size: 0.95rem;
-      line-height: 1.6;
-      padding: $spacing-lg $spacing-md;
+      font-size: $font-size-sm;
+      line-height: 1.65;
+      padding: $spacing-md;
+      border-radius: $radius-md;
+
+      &__text {
+        margin: 0;
+      }
+    }
+
+    .anime-pills,
+    .anime-tags-cloud {
+      gap: $spacing-xs;
+    }
+
+    .anime-pill {
+      padding: 5px 12px;
+      font-size: 0.8rem;
+
+      &:hover {
+        transform: none;
+      }
     }
 
     .anime-info-card {
-      padding: $spacing-lg;
+      padding: $spacing-lg $spacing-md;
 
       &__title {
-        font-size: 1.1rem;
+        font-size: $font-size-md;
         margin-bottom: $spacing-md;
       }
     }
 
     .anime-info-row {
-      font-size: 0.85rem;
-      padding: $spacing-xs 0;
-      gap: $spacing-sm;
+      font-size: $font-size-sm;
+      padding: $spacing-sm 0;
+      gap: $spacing-md;
+      flex-wrap: wrap;
 
       .label { 
         flex-shrink: 0;
-        min-width: 80px;
+        min-width: 70px;
+        font-size: 0.8rem;
       }
+      
       .value { 
         word-break: break-word;
+        text-align: left;
+        flex: 1;
       }
+    }
+
+    .anime-trailer {
+      margin-top: $spacing-lg;
+      border-radius: $radius-md;
+    }
+
+    // Disable hover effects on mobile
+    .anime-pill:hover {
+      background: rgba($color-bg-tertiary, 0.8);
+      color: $color-text-secondary;
     }
   }
   </style>

@@ -220,24 +220,42 @@ onUnmounted(() => {
 
 @include mobile {
   .modal-overlay {
-    padding: 0 $spacing-sm;
+    padding: 0;
     align-items: flex-end;
+    justify-content: stretch;
   }
   
   .modal-container {
     max-width: 100%;
-    max-height: 92dvh;
-    border-radius: $radius-xl $radius-xl 0 0;
+    max-height: 95dvh;
+    border-radius: $radius-2xl $radius-2xl 0 0;
+    border-bottom: none;
+    margin: 0;
+    
+    // Swipe to close indicator
+    &::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+      z-index: 1;
+    }
   }
   
   .modal-content {
-    padding: $spacing-lg $spacing-md;
-    padding-bottom: $spacing-2xl;
+    padding: $spacing-xl $spacing-md;
+    padding-bottom: calc($spacing-2xl + env(safe-area-inset-bottom, 20px));
+    padding-top: calc($spacing-lg + 20px);
   }
 
   .modal-close {
-    top: $spacing-sm;
-    right: $spacing-sm;
+    top: $spacing-md;
+    right: $spacing-md;
     width: 36px;
     height: 36px;
     
@@ -247,10 +265,7 @@ onUnmounted(() => {
     }
   }
   
-  .modal-enter-from .modal-container {
-    transform: translateY(100%);
-  }
-  
+  .modal-enter-from .modal-container,
   .modal-leave-to .modal-container {
     transform: translateY(100%);
   }
