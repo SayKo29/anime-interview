@@ -86,6 +86,8 @@ const handleEpisodeClick = (episode: JikanEpisode) => {
 <style lang="scss" scoped>
 .episode-list {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   
   @include element(header) {
     margin-bottom: $spacing-2xl;
@@ -127,12 +129,17 @@ const handleEpisodeClick = (episode: JikanEpisode) => {
   
   @include element(content) {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
   
   @include element(grid) {
     display: flex;
     flex-direction: column;
     gap: $spacing-md;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
   
   @include element(loading) {
@@ -174,8 +181,30 @@ const handleEpisodeClick = (episode: JikanEpisode) => {
   }
   
   @include mobile {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    
+    @include element(header) {
+      width: 100%;
+      max-width: 100%;
+    }
+    
     @include element(title) {
       font-size: $font-size-xl;
+      flex-wrap: wrap;
+    }
+    
+    @include element(content) {
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    
+    @include element(grid) {
+      width: 100%;
+      max-width: 100%;
     }
   }
 }

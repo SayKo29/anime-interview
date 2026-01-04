@@ -31,8 +31,8 @@
           h2.anime-hero__subtitle(v-if="anime.title_japanese") {{ anime.title_japanese }}
           .anime-stats
             .anime-stat
-              .anime-stat__icon-box
-                svg(viewBox="0 0 24 24" fill="currentColor")
+              .anime-stat__ring(:style="`--score: ${anime.score ? anime.score * 10 : 0}%`")
+                svg.anime-stat__icon(viewBox="0 0 24 24" fill="currentColor")
                   path(d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z")
               .anime-stat__data
                 span.anime-stat__value {{ anime.score || 'N/A' }}
@@ -535,6 +535,9 @@ if (error.value) {
   @include mobile {
     .anime-page {
       padding-bottom: $spacing-2xl;
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
 
       &__back {
         top: $spacing-sm;
@@ -558,6 +561,8 @@ if (error.value) {
       &__content {
         padding: 0 $spacing-md;
         padding-top: 70px;
+        width: 100%;
+        max-width: 100%;
       }
     }
 
@@ -566,6 +571,8 @@ if (error.value) {
       gap: $spacing-xl;
       text-align: center;
       margin-bottom: $spacing-xl;
+      width: 100%;
+      max-width: 100%;
 
       &__poster-wrapper {
         max-width: 220px;
@@ -580,10 +587,14 @@ if (error.value) {
       &__info {
         padding-bottom: 0;
         align-items: center;
+        width: 100%;
+        max-width: 100%;
       }
 
       &__meta {
         justify-content: center;
+        width: 100%;
+        max-width: 100%;
       }
 
       &__title {
@@ -591,11 +602,20 @@ if (error.value) {
         line-height: 1.1;
         margin-bottom: $spacing-sm;
         text-align: center;
+        width: 100%;
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
       }
 
       &__subtitle {
         font-size: $font-size-base;
         margin-bottom: $spacing-md;
+        width: 100%;
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
       }
     }
 
@@ -606,72 +626,81 @@ if (error.value) {
 
     .anime-stats {
       width: 100%;
-      justify-content: space-between;
-      gap: $spacing-xs;
-      padding: $spacing-lg $spacing-md;
+      max-width: 100%;
+      justify-content: space-around;
+      gap: $spacing-sm;
+      padding: $spacing-md;
       margin-top: $spacing-lg;
-      background: rgba($color-bg-secondary, 0.6);
+      box-sizing: border-box;
     }
 
     .anime-stat {
       flex-direction: column;
-      gap: $spacing-sm;
+      gap: $spacing-xxs;
       text-align: center;
       min-width: 0;
       flex: 1;
-      padding: $spacing-sm 0;
+      max-width: 33.333%;
 
       &__ring {
-        width: 48px;
-        height: 48px;
-        margin: 0 auto;
+        width: 36px;
+        height: 36px;
       }
 
       &__icon {
-        width: 20px;
-        height: 20px;
+        width: 16px;
+        height: 16px;
       }
 
       &__icon-box {
-        width: 32px;
-        height: 32px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba($color-primary, 0.1);
-        border-radius: $radius-md;
+        width: 20px;
+        height: 20px;
 
         svg {
-          width: 18px;
-          height: 18px;
+          width: 20px;
+          height: 20px;
         }
       }
 
       &__data {
-        gap: $spacing-xxs;
+        gap: 2px;
+        width: 100%;
+        overflow: hidden;
       }
 
       &__value {
-        font-size: $font-size-xl;
-        font-weight: $font-weight-black;
-        line-height: 1;
+        font-size: $font-size-base;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       &__label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-weight: $font-weight-semibold;
+        font-size: 0.625rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
 
     .anime-grid {
       grid-template-columns: 1fr;
       gap: $spacing-xl;
+      width: 100%;
+      max-width: 100%;
+      
+      &__main {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
     }
 
     .anime-section {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      
       &__title {
         font-size: 1.125rem;
         margin-bottom: $spacing-md;
@@ -702,20 +731,33 @@ if (error.value) {
       line-height: 1.65;
       padding: $spacing-md;
       border-radius: $radius-md;
+      width: 100%;
+      max-width: 100%;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
 
       &__text {
         margin: 0;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
       }
     }
 
     .anime-pills,
     .anime-tags-cloud {
       gap: $spacing-xs;
+      width: 100%;
+      max-width: 100%;
     }
 
     .anime-pill {
       padding: 5px 12px;
       font-size: 0.8rem;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
       &:hover {
         transform: none;
@@ -724,6 +766,9 @@ if (error.value) {
 
     .anime-info-card {
       padding: $spacing-lg $spacing-md;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
 
       &__title {
         font-size: $font-size-md;
@@ -736,6 +781,8 @@ if (error.value) {
       padding: $spacing-sm 0;
       gap: $spacing-md;
       flex-wrap: wrap;
+      width: 100%;
+      max-width: 100%;
 
       .label { 
         flex-shrink: 0;
@@ -745,8 +792,11 @@ if (error.value) {
       
       .value { 
         word-break: break-word;
+        overflow-wrap: break-word;
         text-align: left;
         flex: 1;
+        min-width: 0;
+        max-width: 100%;
       }
     }
 

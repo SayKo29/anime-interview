@@ -194,6 +194,9 @@ const formatDate = (dateString: string) => {
   @include mobile {
     padding: $spacing-md;
     gap: $spacing-md;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     
     // Disable hover on mobile (touch devices)
     &:hover {
@@ -222,6 +225,7 @@ const formatDate = (dateString: string) => {
       min-width: 50px;
       height: 50px;
       border-radius: $radius-sm;
+      flex-shrink: 0;
     }
 
     @include element(number-label) {
@@ -233,14 +237,25 @@ const formatDate = (dateString: string) => {
       font-size: $font-size-lg;
     }
     
+    @include element(content) {
+      flex: 1;
+      min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    
     @include element(title) {
       font-size: $font-size-sm;
       margin-bottom: $spacing-xxs;
       @include truncate-text(2);
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
     }
 
     @include element(meta) {
       gap: $spacing-sm;
+      flex-wrap: wrap;
     }
 
     @include element(date) {
@@ -255,6 +270,7 @@ const formatDate = (dateString: string) => {
     @include element(action) {
       width: 18px;
       height: 18px;
+      flex-shrink: 0;
 
       svg {
         width: 18px;

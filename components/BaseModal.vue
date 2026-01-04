@@ -232,7 +232,7 @@ onUnmounted(() => {
     border-bottom: none;
     margin: 0;
     
-    // Swipe to close indicator
+    // Indicador de deslizar para cerrar
     &::before {
       content: '';
       position: absolute;
