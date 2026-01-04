@@ -31,8 +31,8 @@
           h2.anime-hero__subtitle(v-if="anime.title_japanese") {{ anime.title_japanese }}
           .anime-stats
             .anime-stat
-              .anime-stat__ring(:style="`--score: ${anime.score ? anime.score * 10 : 0}%`")
-                svg.anime-stat__icon(viewBox="0 0 24 24" fill="currentColor")
+              .anime-stat__icon-box
+                svg(viewBox="0 0 24 24" fill="currentColor")
                   path(d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z")
               .anime-stat__data
                 span.anime-stat__value {{ anime.score || 'N/A' }}
@@ -606,48 +606,63 @@ if (error.value) {
 
     .anime-stats {
       width: 100%;
-      justify-content: space-around;
-      gap: $spacing-sm;
-      padding: $spacing-md;
+      justify-content: space-between;
+      gap: $spacing-xs;
+      padding: $spacing-lg $spacing-md;
       margin-top: $spacing-lg;
+      background: rgba($color-bg-secondary, 0.6);
     }
 
     .anime-stat {
       flex-direction: column;
-      gap: $spacing-xxs;
+      gap: $spacing-sm;
       text-align: center;
       min-width: 0;
+      flex: 1;
+      padding: $spacing-sm 0;
 
       &__ring {
-        width: 36px;
-        height: 36px;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto;
       }
 
       &__icon {
-        width: 16px;
-        height: 16px;
+        width: 20px;
+        height: 20px;
       }
 
       &__icon-box {
-        width: 20px;
-        height: 20px;
+        width: 32px;
+        height: 32px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba($color-primary, 0.1);
+        border-radius: $radius-md;
 
         svg {
-          width: 20px;
-          height: 20px;
+          width: 18px;
+          height: 18px;
         }
       }
 
       &__data {
-        gap: 2px;
+        gap: $spacing-xxs;
       }
 
       &__value {
-        font-size: $font-size-base;
+        font-size: $font-size-xl;
+        font-weight: $font-weight-black;
+        line-height: 1;
       }
 
       &__label {
-        font-size: 0.625rem;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: $font-weight-semibold;
       }
     }
 
